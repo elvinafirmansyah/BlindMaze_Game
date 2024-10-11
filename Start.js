@@ -15,4 +15,12 @@ document.addEventListener('DOMContentLoaded', () => {
   game.update();
 
   game.drawWalls();
+
+  
+
+  window.addEventListener("keydown", (e) => {
+    game.changeDirection(e);
+  })
+
 })
+
