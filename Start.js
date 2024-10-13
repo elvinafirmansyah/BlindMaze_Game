@@ -1,9 +1,11 @@
 import Game from "./Game.js";
 
+const startingCountdown = document.getElementById('starting_countdown')
+console.log(startingCountdown)
+
 document.addEventListener('DOMContentLoaded', () => {
   const canvas = document.getElementById('gameboard');
 
-  console.log(canvas)
   const context = canvas.getContext('2d');
 
   canvas.width = 500;
@@ -12,16 +14,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const game = new Game(context, canvas);
 
-
-  // game.movePlayer();
-  game.update();
-
-  // game.drawWalls();
+  window.requestAnimationFrame(gameStart);
 
   window.addEventListener("keydown", (e) => {
     game.changeDirection(e);
     game.update();
+    game.draw();
   })
+
+  function gameStart() {
+    // const countdownDisplay = setInterval(() => {
+    //   countdown.innerHTML = `${Number(countdown.innerHTML) - 1}`
+    // }, 1000)
+
+    
+    setTimeout(() => {
+      // clearInterval(countdownDisplay);
+      // countdown.style.display = 'none';
+      console.log(startingCountdown)
+      // countdown.style.display = 'none';
+      game.draw();
+    }, 0)
+    // game.update();
+  }
 
 })
 

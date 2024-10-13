@@ -3,6 +3,8 @@ import Vertical from "./initialComponents/Vertical.js"
 import Walls from "./initialComponents/Walls.js"
 import Player from "./Player POV/Player.js"
 
+const gameCountdown = document.getElementById('time-display');
+
 let mazes = [
   [
     "111---1111", //1
@@ -69,9 +71,10 @@ class Game {
 
     this.player = new Player(this.context, this.playerPosition.x, this.playerPosition.y, this._cellSize, this._cellSize);
 
+    this.isOver = false;
   }
 
-  update() {
+  draw() {
     this.context.clearRect(0, 0, this._boardWidth, this._boardHeight);
 
     this.horizontalLine.forEach((line) => {
@@ -88,24 +91,40 @@ class Game {
 
     this.drawWalls();
 
+    this.drawPlayer();
+  }
+
+  update() {
+    this.movePlayer();  
+    this.checkGameover();
+  }
+
+  checkGameover() {
+    for (let r = 0; r < this.randomWalls.length; r++) {
+      for (let c = 0; c < this.randomWalls[0].length; c++) {
+        const wall = this.randomWalls[r][c];
+        if (wall) {
+          if (wall.x === this.player.x && wall.y === this.player.y) {
+            console.log('gameover')
+            this.isOver = true;
+          }
+        }
+      }
+    }
+
+    // console.log(this.randomWalls);
+  }
+
+  movePlayer() {
     this.playerPosition.x += this._xVelocity;
     this.playerPosition.y += this._yVelocity;
     this.player.x = this.playerPosition.x;
     this.player.y = this.playerPosition.y;
 
-    // if (this.player.x === this._boardWidth) {
-    //   this.player.x = this._boardWidth;
-    //   console.log(this.player.x, this.player)
-    // }
-
-    this.drawPlayer();
-
-    // // Reset velocities after moving to avoid continuous movement
-    // this._xVelocity = 0;
-    // this._yVelocity = 0;
+    // Reset velocities after moving to avoid continuous movement
+    this._xVelocity = 0;
+    this._yVelocity = 0;
   }
-
-
 
   generatePlayerPosition() {
     let validPosition = false;
@@ -174,6 +193,7 @@ class Game {
         break;
     }
   }
+
   
   drawPlayer() {
     this.player.draw();
@@ -191,6 +211,10 @@ class Game {
       }
     }
   } 
+
+  displayGameover() {
+
+  }
   
 }
 
