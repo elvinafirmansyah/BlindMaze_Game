@@ -64,10 +64,16 @@ class Game {
 
     this.playerPosition = this.generatePlayerPosition();
 
-    
+    this._xVelocity = 0;
+    this._yVelocity = 0;
+
+    this.player = new Player(this.context, this.playerPosition.x, this.playerPosition.y, this._cellSize, this._cellSize);
+
   }
 
   update() {
+    this.context.clearRect(0, 0, this._boardWidth, this._boardHeight);
+
     this.horizontalLine.forEach((line) => {
       if (line) {
         line.draw();
@@ -80,8 +86,26 @@ class Game {
       }
     })
 
-    this.drawPlayer()
+    this.drawWalls();
+
+    this.playerPosition.x += this._xVelocity;
+    this.playerPosition.y += this._yVelocity;
+    this.player.x = this.playerPosition.x;
+    this.player.y = this.playerPosition.y;
+
+    // if (this.player.x === this._boardWidth) {
+    //   this.player.x = this._boardWidth;
+    //   console.log(this.player.x, this.player)
+    // }
+
+    this.drawPlayer();
+
+    // // Reset velocities after moving to avoid continuous movement
+    // this._xVelocity = 0;
+    // this._yVelocity = 0;
   }
+
+
 
   generatePlayerPosition() {
     let validPosition = false;
@@ -106,16 +130,57 @@ class Game {
     return { x, y }; // Return the valid position as an object
   }
 
+  changeDirection(e) {
+    const keyPressed = e.keyCode;
+    // console.log(keyPressed);
+  
+    const LEFT = 37;
+    const UP = 38;
+    const RIGHT = 39;
+    const DOWN = 40;
+  
+    switch(true) {
+      case (keyPressed == LEFT):
+        console.log('left');
+        this._xVelocity = -this._cellSize
+        this._yVelocity = 0;
+        if (this.player.x === 0) {
+          this._xVelocity = 0;
+        } 
+        break;
+      case (keyPressed == RIGHT):
+        console.log('right');
+        this._xVelocity = this._cellSize
+        this._yVelocity = 0
+        if (this.player.x === this._boardWidth - this._cellSize) {
+          this._xVelocity = 0;
+        } 
+        break;
+      case (keyPressed == UP):
+        console.log('up');
+        this._xVelocity = 0
+        this._yVelocity = -this._cellSize
+        if (this.player.y === 0) {
+          this._yVelocity = 0;
+        } 
+        break;
+      case (keyPressed == DOWN):
+        console.log('down');
+        this._xVelocity = 0
+        this._yVelocity = this._cellSize
+        if (this.player.y === this._boardHeight - this._cellSize) {
+          this._yVelocity = 0;
+        } 
+        break;
+    }
+  }
+  
   drawPlayer() {
-    const player = new Player(this.context, this.playerPosition.x, this.playerPosition.y, this._cellSize, this._cellSize);
-
-    console.log(player)
-    player.draw();
-
+    this.player.draw();
   }
 
+
   drawWalls() {
-    
     for (let r = 0; r < this._rows; r++) {
       for (let c = 0; c < this._columns; c++) {
         if (this.maze[r][c] !== "-" && this.maze[r][c] !== "E") {
@@ -126,30 +191,6 @@ class Game {
       }
     }
   } 
-
-  changeDirection(e) {
-    const keyPressed = e.keyCode;
-  
-    const LEFT = 37;
-    const UP = 38;
-    const RIGHT = 39;
-    const DOWN = 40;
-  
-    switch(true) {
-      case (keyPressed == LEFT):
-        console.log('left');
-        break;
-      case (keyPressed == RIGHT):
-        console.log('right');
-        break;
-      case (keyPressed == UP):
-        console.log('up');
-        break;
-      case (keyPressed == DOWN):
-        console.log('down');
-        break;
-    }  
-  }
   
 }
 

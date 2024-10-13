@@ -10,16 +10,17 @@ document.addEventListener('DOMContentLoaded', () => {
   canvas.height = 500;
   canvas.style.border = '2px solid black'
 
-  const game = new Game(context, canvas)
+  const game = new Game(context, canvas);
 
+
+  // game.movePlayer();
   game.update();
 
-  game.drawWalls();
-
-  
+  // game.drawWalls();
 
   window.addEventListener("keydown", (e) => {
     game.changeDirection(e);
+    game.update();
   })
 
 })
