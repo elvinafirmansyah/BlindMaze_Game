@@ -43,6 +43,21 @@ function randMazeIdx(min, max) {
   return randIdx;
 }
 
+function countdownFormat(minutes, seconds) {
+  let min = toString(minutes);
+  let sec = toString(seconds);
+  if (minutes <= 9) {
+    min = '0' + min;
+  }
+  if (seconds <= 9) {
+    sec = '0' + sec;
+  }
+  return `${minutes}`
+  // minutes <= 9 ? `0${minutes}` : `${minutes}`
+  // seconds <= 9 ? `0${seconds}` : `${seconds}`
+  // return `${minutes} : ${seconds}`
+}
+
 class Game {
   _columns = 10
   _rows = 10
@@ -72,6 +87,27 @@ class Game {
     this.player = new Player(this.context, this.playerPosition.x, this.playerPosition.y, this._cellSize, this._cellSize);
 
     this.isOver = false;
+
+    this.minutes = 1;
+    this.seconds = 5;
+  }
+  
+  countdownTimer() {
+    const countdownDisplay = setInterval(() => {
+      // this.minutes--;
+      this.seconds--;
+      if (this.minutes >= 1) {
+        if (this.seconds <= 0) {
+          this.minutes--;
+          this.seconds = 59;
+        } 
+      }
+      if (this.seconds <= 0) {
+        clearInterval(countdownDisplay);
+        this.isOver = true;
+      }
+      // console.log(countdownFormat(this.minutes, this.seconds))
+    }, 1000)
   }
 
   draw() {
@@ -80,7 +116,7 @@ class Game {
     this.horizontalLine.forEach((line) => {
       if (line) {
         line.draw();
-      }
+      } 
     })
 
     this.verticalLine.forEach((line) => {
@@ -111,8 +147,6 @@ class Game {
         }
       }
     }
-
-    // console.log(this.randomWalls);
   }
 
   movePlayer() {

@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   canvas.width = 500;
   canvas.height = 500;
-  canvas.style.border = '2px solid black'
+  canvas.style.border = '2px solid lightgray'
 
   const game = new Game(context, canvas);
 
@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log(startingCountdown)
       // countdown.style.display = 'none';
       game.draw();
+      game.countdownTimer();
     }, 0)
     // game.update();
   }

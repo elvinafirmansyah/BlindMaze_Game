@@ -1,7 +1,8 @@
 import ObjectBase from "./ObjectBase.js";
 
 class Horizontal extends ObjectBase {
-  _black = "black";
+  _bordercolor = "lightgray";
+
   constructor(context, y, width) {
     // 0 * 10
       super(0, y * 50 + 50, width, 1)
@@ -10,7 +11,7 @@ class Horizontal extends ObjectBase {
   }
 
   draw() {
-    this.context.fillStyle = this._black;
+    this.context.fillStyle = this._bordercolor;
     this.context.fillRect(this.x, this.y, this.width, this.height)
   }
   

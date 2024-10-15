@@ -1,7 +1,7 @@
 import ObjectBase from "./ObjectBase.js";
 
 class Vertical extends ObjectBase {
-  _black = "black";
+  _bordercolor = "lightgray";
   _cellSize = 50
   constructor(context, x, height) {
     // 0 * 10
