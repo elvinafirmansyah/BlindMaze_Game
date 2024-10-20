@@ -11,7 +11,7 @@ class Vertical extends ObjectBase {
   }
 
   draw() {
-    this.context.fillStyle = this._black;
+    this.context.fillStyle = this._bordercolor;
     this.context.fillRect(this.x, this.y, this.width, this.height)
   }
 }

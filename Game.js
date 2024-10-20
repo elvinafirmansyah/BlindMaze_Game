@@ -1,3 +1,4 @@
+import ExitDoor from "./initialComponents/ExitDoor.js";
 import Horizontal from "./initialComponents/horizontal.js"
 import Vertical from "./initialComponents/Vertical.js"
 import Walls from "./initialComponents/Walls.js"
@@ -44,18 +45,19 @@ function randMazeIdx(min, max) {
 }
 
 function countdownFormat(minutes, seconds) {
-  let min = toString(minutes);
-  let sec = toString(seconds);
+  let min = String(minutes);
+  let sec = String(seconds);
   if (minutes <= 9) {
     min = '0' + min;
   }
   if (seconds <= 9) {
     sec = '0' + sec;
   }
-  return `${minutes}`
-  // minutes <= 9 ? `0${minutes}` : `${minutes}`
-  // seconds <= 9 ? `0${seconds}` : `${seconds}`
-  // return `${minutes} : ${seconds}`
+  return `${min}:${sec}`
+}
+
+function isOdd(num) {
+  return num % 2 !== 0;
 }
 
 class Game {
@@ -72,9 +74,10 @@ class Game {
 
     this.verticalLine = Array.from({length: this._columns}, (_, i) => new Vertical(context, i, this._boardHeight)) 
 
-    this.walls = new Walls(context, randNumber(0, this._boardWidth - 50, 50), randNumber(0, this._boardWidth - 50, 50), 50, 50)
+    // this.walls = new Walls(context, randNumber(0, this._boardWidth - 50, 50), randNumber(0, this._boardWidth - 50, 50), 50, 50)
 
     this.randomWalls = Array.from({length: this._rows}, () => [])
+  
 
     const randIdx = randMazeIdx(0, mazes.length - 1)
     this.maze = mazes[randIdx]
@@ -88,8 +91,10 @@ class Game {
 
     this.isOver = false;
 
-    this.minutes = 1;
-    this.seconds = 5;
+    this.minutes = 0;
+    this.seconds = 20;
+
+    this.text = new Player(this.context, this._boardWidth/2, this._boardHeight/2, 100, 100);
   }
   
   countdownTimer() {
@@ -106,7 +111,7 @@ class Game {
         clearInterval(countdownDisplay);
         this.isOver = true;
       }
-      // console.log(countdownFormat(this.minutes, this.seconds))
+      gameCountdown.innerHTML = countdownFormat(this.minutes, this.seconds)
     }, 1000)
   }
 
@@ -128,11 +133,19 @@ class Game {
     this.drawWalls();
 
     this.drawPlayer();
+
+    this.displayGameover();
+    // this.drawGameOver();
+
   }
 
   update() {
     this.movePlayer();  
     this.checkGameover();
+    // this.displayGameover();
+    // this.displayGameover();
+
+    // this.displayGameover();
   }
 
   checkGameover() {
@@ -140,11 +153,16 @@ class Game {
       for (let c = 0; c < this.randomWalls[0].length; c++) {
         const wall = this.randomWalls[r][c];
         if (wall) {
-          if (wall.x === this.player.x && wall.y === this.player.y) {
-            console.log('gameover')
-            this.isOver = true;
+          if (wall.type === "wall") {
+            if (wall.x === this.player.x - this._cellSize / 2 && wall.y === this.player.y - this._cellSize / 2) {
+              this.isOver = true;
+            }
+          }
+          if (wall.type === "exitdoor") {
+            if (wall.x === this.player.x - this._cellSize / 2 && wall.y === this.player.y - this._cellSize / 2)
           }
         }
+        console.log(wall)
       }
     }
   }
@@ -168,15 +186,15 @@ class Game {
     while (!validPosition) {
       // Generate random grid coordinates (row and column)
       const row = randMazeIdx(0, this._rows - 1);
-      const col = randMazeIdx(0, this._columns - (this._columns/2) - 1);
+      const col = randMazeIdx(0, this._columns - 1);
 
       // Check if the maze at this position is empty (no wall)
       if (this.maze[row][col] === "-" && this.maze[row][col] !== "E") {
-        validPosition = true;
+          validPosition = true;
 
-        // Convert grid coordinates to actual x, y positions
-        x = col * this._cellSize;
-        y = row * this._cellSize;
+          // Convert grid coordinates to actual x, y positions
+          x = (col * this._cellSize) + this._cellSize / 2;
+          y = (row * this._cellSize) + this._cellSize / 2;
       }
     }
 
@@ -185,7 +203,6 @@ class Game {
 
   changeDirection(e) {
     const keyPressed = e.keyCode;
-    // console.log(keyPressed);
   
     const LEFT = 37;
     const UP = 38;
@@ -197,7 +214,7 @@ class Game {
         console.log('left');
         this._xVelocity = -this._cellSize
         this._yVelocity = 0;
-        if (this.player.x === 0) {
+        if (this.player.x === 0 + this._cellSize/2) {
           this._xVelocity = 0;
         } 
         break;
@@ -205,7 +222,7 @@ class Game {
         console.log('right');
         this._xVelocity = this._cellSize
         this._yVelocity = 0
-        if (this.player.x === this._boardWidth - this._cellSize) {
+        if (this.player.x === this._boardWidth - this._cellSize/2) {
           this._xVelocity = 0;
         } 
         break;
@@ -213,7 +230,7 @@ class Game {
         console.log('up');
         this._xVelocity = 0
         this._yVelocity = -this._cellSize
-        if (this.player.y === 0) {
+        if (this.player.y === 0 + this._cellSize/2) {
           this._yVelocity = 0;
         } 
         break;
@@ -221,33 +238,43 @@ class Game {
         console.log('down');
         this._xVelocity = 0
         this._yVelocity = this._cellSize
-        if (this.player.y === this._boardHeight - this._cellSize) {
+        if (this.player.y === this._boardHeight - this._cellSize /2) {
           this._yVelocity = 0;
         } 
         break;
     }
   }
-
   
   drawPlayer() {
     this.player.draw();
   }
 
-
   drawWalls() {
     for (let r = 0; r < this._rows; r++) {
       for (let c = 0; c < this._columns; c++) {
         if (this.maze[r][c] !== "-" && this.maze[r][c] !== "E") {
-          const wall = new Walls(this.context, c * 50, r * 50, this._cellSize, this._cellSize);
+          const wall = new Walls(this.context, c * this._cellSize, r * this._cellSize, this._cellSize, this._cellSize, "wall");
           this.randomWalls[r][c] = wall;
           wall.draw();
+        }
+        if (this.maze[r][c] === "E") {
+          const exitDoor = new ExitDoor(this.context, c * this._cellSize + this._cellSize - 5, r * this._cellSize, 5, this._cellSize, "exitdoor");
+          this.randomWalls[r][c] = exitDoor;
+          exitDoor.draw();
         }
       }
     }
   } 
 
   displayGameover() {
-
+    if (this.isOver) {
+      console.log("GAMOVER")
+      console.log(this.context);
+      this.context.font = "60px Poppins";
+      this.context.fillStyle = "white";
+      this.context.textAlign = "center";
+      this.context.fillText("GAMEOVER", this._boardWidth/2, this._boardHeight/2)
+    }
   }
   
 }

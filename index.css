@@ -9,8 +9,14 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
+  background-color: black;
+  color: white;
 }
 
 #gameboard {
-  background-color: rgb(238, 255, 255);
+  background-color: transparent;
+}
+.time {
+  display: flex;
+  justify-content: space-between;
 }
