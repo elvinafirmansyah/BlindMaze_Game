@@ -76,7 +76,8 @@ class Game {
   _rows = 10
   _boardWidth = 500
   _boardHeight = 500
-  _cellSize = 50;    
+  _cellSize = 50;   
+  _hearts = 5; 
   constructor(context, canvas) {    
     this.context = context   
     this.canvas = canvas
@@ -168,7 +169,6 @@ class Game {
 
       }
       
-      
     }, 1000)
   }
 
@@ -191,10 +191,6 @@ class Game {
 
     this.drawPlayer();
 
-    // this.displayGameover();
-
-    // this.displayWin();
-
   }
 
   update() {
@@ -207,6 +203,7 @@ class Game {
     console.log(lastHeart)
     if (lastHeart) {
       lastHeart.remove();
+      this._hearts--;
     }
   }
 
@@ -220,13 +217,15 @@ class Game {
               if (!this.isLoseHeart) {
                 this.isLoseHeart = true;
                 this.removeHeart();
-                if (hearts.length <= 1) {
+                if (this._hearts <= 0) {
                   this.running = false;
                   this.isOver = true;
                 }
-                // this.isLoseHeart = false;
-              }
-              console.log(this.isLoseHeart)
+                setTimeout(() => {
+                  this.isLoseHeart = false;
+                }, 1000)
+              } 
+              console.log(this.isLoseHeart);
             }
           }
           if (wall.type === "exitdoor") {
@@ -240,6 +239,7 @@ class Game {
         }
       }
     }
+    
   }
 
   movePlayer() {
@@ -251,6 +251,8 @@ class Game {
     // Reset velocities after moving to avoid continuous movement
     this._xVelocity = 0;
     this._yVelocity = 0;
+
+
   }
 
   generatePlayerPosition() {
