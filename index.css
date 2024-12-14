@@ -1,22 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: "Open Sans", sans-serif;
 }
 
-body {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-color: black;
-  color: white;
-}
 
 #gameboard {
   background-color: transparent;
 }
-.time {
+.container-text  {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+.title {
+  font-size: 30px;
+  display: flex;
+  align-items: center;
+}
+
+.none {
+  display: none;
+}
+
+.container-text .time {
   display: flex;
   justify-content: space-between;
+  width: 500px;
 }
+.memorizing_container .title {
+  background-color: rgb(182, 0, 0);
+  border: 1px solid rgb(255, 173, 163);
+  border-radius: 20px;
+  font-size: 10px;
+  padding: 5px;
+}
+
+.move_container .title {
+  background-color: rgb(0, 54, 162);
+  border: 1px solid rgb(173, 195, 255);
+  border-radius: 20px;
+  font-size: 10px;
+  padding: 5px;
+  width: fit-content;
+}
+
+.memorizing_container #memorizing-countdown, 
+.move_container #move-countdown {
+  text-align: center;
+  font-size: 20px;
+  font-weight: bold;
+} 
+
+
+#hearts img {
+  width: 20px;
+  height: 20px;
+}
+
+
+

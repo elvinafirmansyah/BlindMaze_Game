@@ -2,7 +2,7 @@ import ObjectBase from "../initialComponents/ObjectBase.js";
 
 class ExitDoor extends ObjectBase {
   _cellSize = 50;
-  _color = "red";
+  _color = "yellow";
   _borderColor = "lightgray";
   
   constructor(context, x, y, width, height, type) {

@@ -1,11 +1,22 @@
 import ExitDoor from "./initialComponents/ExitDoor.js";
-import Horizontal from "./initialComponents/horizontal.js"
+// import Horizontal from "./initialComponents/horizontal.js"
+import Horizontal from "./initialComponents/Horizontal.js";
 import Vertical from "./initialComponents/Vertical.js"
 import Walls from "./initialComponents/Walls.js"
 import Player from "./Player POV/Player.js"
 
-const gameCountdown = document.getElementById('time-display');
+// const gameCountdown = document.getElementById('time-display');
+const moveTime = document.getElementById('move-countdown');
+const memorizingTime = document.getElementById('memorizing-countdown');
+const memorizingContainer = document.querySelector('.memorizing_container')
+const moveContainer = document.querySelector('.move_container');
 
+const heartContainer = document.getElementById('hearts');
+const hearts = document.querySelectorAll('.heart_img');
+const lastHeart = document.querySelector('#hearts .heart_img:last-child');
+// console.log(lastHeart)
+// console.log(hearts)
+// console.log(moveTime, memorizingTime)
 let mazes = [
   [
     "111---1111", //1
@@ -17,16 +28,28 @@ let mazes = [
     "------11--", //7
     "-------111", //8
     "111111----", //9
-    "-----1111-", //10
+    "111111111-", //10
   ],
   [
     "111---1111", //1
     "11-----111", //2
     "11111-1111", //3
     "----------", //4
-    "1111111--E", //5
+    "1111111---", //5
     "----------", //6
     "-11111111-", //7
+    "-------111", //8
+    "--111-----", //9
+    "-----1111E", //10
+  ],
+  [
+    "111---1111", //1
+    "11-----111", //2
+    "11-----111", //3
+    "1---------", //4
+    "--1111111-", //5
+    "----------", //6
+    "-111111--E", //7
     "-------111", //8
     "--111-----", //9
     "-----1111-", //10
@@ -42,18 +65,6 @@ function randNumber(min, max, cellSize) {
 function randMazeIdx(min, max) {
   const randIdx = Math.round((Math.random() * (max - min) + min))
   return randIdx;
-}
-
-function countdownFormat(minutes, seconds) {
-  let min = String(minutes);
-  let sec = String(seconds);
-  if (minutes <= 9) {
-    min = '0' + min;
-  }
-  if (seconds <= 9) {
-    sec = '0' + sec;
-  }
-  return `${min}:${sec}`
 }
 
 function isOdd(num) {
@@ -89,29 +100,75 @@ class Game {
 
     this.player = new Player(this.context, this.playerPosition.x, this.playerPosition.y, this._cellSize, this._cellSize);
 
+    this.isWin = false;
     this.isOver = false;
 
-    this.minutes = 0;
-    this.seconds = 20;
+    this.running = false;
+    this.isLoseHeart = false;
+
+    this.memorizingSeconds = 2;
+    this.moveSeconds = 20;
+
+    this.memorizingTimerStarted = false;
 
     this.text = new Player(this.context, this._boardWidth/2, this._boardHeight/2, 100, 100);
   }
+
+  nextTick() {
+    if (this.running) {
+      this.draw();
+      this.update();
+      requestAnimationFrame(() => this.nextTick());
+    } else {
+      if (this.isOver) {
+        this.displayGameover();
+      } 
+      if (this.isWin) {
+        this.displayWin();
+      }
+    }
+  }
+
+  startTimer() {
+    if (!this.memorizingTimerStarted) {
+      this.draw();
+      this.memorizingTimerStarted = true; 
+      // Ensure it only starts once
+      this.memorizingTimer();
+    }
+  }
   
-  countdownTimer() {
+  memorizingTimer() {
     const countdownDisplay = setInterval(() => {
-      // this.minutes--;
-      this.seconds--;
-      if (this.minutes >= 1) {
-        if (this.seconds <= 0) {
-          this.minutes--;
-          this.seconds = 59;
-        } 
-      }
-      if (this.seconds <= 0) {
+      this.running = false;
+      this.nextTick();
+      this.memorizingSeconds--;
+      memorizingTime.innerHTML = `${this.memorizingSeconds}s`
+
+
+      if (this.memorizingSeconds <= 0) {
         clearInterval(countdownDisplay);
-        this.isOver = true;
+
+        this.running = true;
+        this.draw();
+        this.nextTick();
+
+        memorizingContainer.classList.add("none");
+        moveContainer.classList.remove("none");
+
+        const moveCountdown = setInterval(() => {
+          this.moveSeconds--;
+          moveTime.innerHTML = `${this.moveSeconds}s`;
+          if (this.moveSeconds <= 0) {
+            clearInterval(moveCountdown)
+          } else if (!this.running) {
+            clearInterval(moveCountdown)
+          }
+        }, 1000)
+
       }
-      gameCountdown.innerHTML = countdownFormat(this.minutes, this.seconds)
+      
+      
     }, 1000)
   }
 
@@ -134,18 +191,23 @@ class Game {
 
     this.drawPlayer();
 
-    this.displayGameover();
-    // this.drawGameOver();
+    // this.displayGameover();
+
+    // this.displayWin();
 
   }
 
   update() {
     this.movePlayer();  
     this.checkGameover();
-    // this.displayGameover();
-    // this.displayGameover();
+  }
 
-    // this.displayGameover();
+  removeHeart() {
+    const lastHeart = document.querySelector('#hearts .heart_img:last-child');
+    console.log(lastHeart)
+    if (lastHeart) {
+      lastHeart.remove();
+    }
   }
 
   checkGameover() {
@@ -155,14 +217,27 @@ class Game {
         if (wall) {
           if (wall.type === "wall") {
             if (wall.x === this.player.x - this._cellSize / 2 && wall.y === this.player.y - this._cellSize / 2) {
-              this.isOver = true;
+              if (!this.isLoseHeart) {
+                this.isLoseHeart = true;
+                this.removeHeart();
+                if (hearts.length <= 1) {
+                  this.running = false;
+                  this.isOver = true;
+                }
+                // this.isLoseHeart = false;
+              }
+              console.log(this.isLoseHeart)
             }
           }
           if (wall.type === "exitdoor") {
-            if (wall.x === this.player.x - this._cellSize / 2 && wall.y === this.player.y - this._cellSize / 2)
+            if (wall.x === this.player.x + 20 && wall.y === this.player.y - this._cellSize/2) {
+              setTimeout(() => {
+                this.running = false;
+              }, 300)
+              this.isWin = true;
+            }
           }
         }
-        console.log(wall)
       }
     }
   }
@@ -202,46 +277,48 @@ class Game {
   }
 
   changeDirection(e) {
-    const keyPressed = e.keyCode;
+    if (this.running) {
+      const keyPressed = e.keyCode;
   
-    const LEFT = 37;
-    const UP = 38;
-    const RIGHT = 39;
-    const DOWN = 40;
-  
-    switch(true) {
-      case (keyPressed == LEFT):
-        console.log('left');
-        this._xVelocity = -this._cellSize
-        this._yVelocity = 0;
-        if (this.player.x === 0 + this._cellSize/2) {
-          this._xVelocity = 0;
-        } 
-        break;
-      case (keyPressed == RIGHT):
-        console.log('right');
-        this._xVelocity = this._cellSize
-        this._yVelocity = 0
-        if (this.player.x === this._boardWidth - this._cellSize/2) {
-          this._xVelocity = 0;
-        } 
-        break;
-      case (keyPressed == UP):
-        console.log('up');
-        this._xVelocity = 0
-        this._yVelocity = -this._cellSize
-        if (this.player.y === 0 + this._cellSize/2) {
+      const LEFT = 37;
+      const UP = 38;
+      const RIGHT = 39;
+      const DOWN = 40;
+    
+      switch(true) {
+        case (keyPressed == LEFT):
+          console.log('left');
+          this._xVelocity = -this._cellSize
           this._yVelocity = 0;
-        } 
-        break;
-      case (keyPressed == DOWN):
-        console.log('down');
-        this._xVelocity = 0
-        this._yVelocity = this._cellSize
-        if (this.player.y === this._boardHeight - this._cellSize /2) {
-          this._yVelocity = 0;
-        } 
-        break;
+          if (this.player.x === 0 + this._cellSize/2) {
+            this._xVelocity = 0;
+          } 
+          break;
+        case (keyPressed == RIGHT):
+          console.log('right');
+          this._xVelocity = this._cellSize
+          this._yVelocity = 0
+          if (this.player.x === this._boardWidth - this._cellSize/2) {
+            this._xVelocity = 0;
+          } 
+          break;
+        case (keyPressed == UP):
+          console.log('up');
+          this._xVelocity = 0
+          this._yVelocity = -this._cellSize
+          if (this.player.y === 0 + this._cellSize/2) {
+            this._yVelocity = 0;
+          } 
+          break;
+        case (keyPressed == DOWN):
+          console.log('down');
+          this._xVelocity = 0
+          this._yVelocity = this._cellSize
+          if (this.player.y === this._boardHeight - this._cellSize /2) {
+            this._yVelocity = 0;
+          } 
+          break;
+      }
     }
   }
   
@@ -253,9 +330,16 @@ class Game {
     for (let r = 0; r < this._rows; r++) {
       for (let c = 0; c < this._columns; c++) {
         if (this.maze[r][c] !== "-" && this.maze[r][c] !== "E") {
-          const wall = new Walls(this.context, c * this._cellSize, r * this._cellSize, this._cellSize, this._cellSize, "wall");
-          this.randomWalls[r][c] = wall;
-          wall.draw();
+          if (this.running) {
+            const transparantWall = new Walls(this.context, c * this._cellSize, r * this._cellSize, this._cellSize, this._cellSize, "wall", "rgba(255, 255, 255, 0.0)");
+            this.randomWalls[r][c] = transparantWall;
+            transparantWall.draw();
+          } else {
+            const wall = new Walls(this.context, c * this._cellSize, r * this._cellSize, this._cellSize, this._cellSize, "wall", "rgba(255, 255, 255, 0.5)");
+            this.randomWalls[r][c] = wall;
+            wall.draw();
+          }
+          
         }
         if (this.maze[r][c] === "E") {
           const exitDoor = new ExitDoor(this.context, c * this._cellSize + this._cellSize - 5, r * this._cellSize, 5, this._cellSize, "exitdoor");
@@ -268,12 +352,19 @@ class Game {
 
   displayGameover() {
     if (this.isOver) {
-      console.log("GAMOVER")
-      console.log(this.context);
       this.context.font = "60px Poppins";
       this.context.fillStyle = "white";
       this.context.textAlign = "center";
       this.context.fillText("GAMEOVER", this._boardWidth/2, this._boardHeight/2)
+    }
+  }
+
+  displayWin() {
+    if (this.isWin) {
+      this.context.font = "60px Poppins";
+      this.context.fillStyle = "white";
+      this.context.textAlign = "center";
+      this.context.fillText("WIN", this._boardWidth/2, this._boardHeight/2)
     }
   }
   

@@ -1,40 +1,44 @@
 import Game from "./Game.js";
 
-const startingCountdown = document.getElementById('starting_countdown')
+const startingCount = document.getElementById
+('starting-countdown');
+
+const timeContainer = document.querySelector('.time');
 
 document.addEventListener('DOMContentLoaded', () => {
   const canvas = document.getElementById('gameboard');
-
   const context = canvas.getContext('2d');
 
   canvas.width = 500;
   canvas.height = 500;
   canvas.style.border = '2px solid lightgray'
 
+  canvas.style.display = "none";
+
+  timeContainer.style.display = 'none';
+  
   const game = new Game(context, canvas);
+  window.addEventListener("keydown", (e) => game.changeDirection(e));
+
 
   window.requestAnimationFrame(gameStart);
 
-  window.addEventListener("keydown", (e) => {
-    game.changeDirection(e);
-    game.update();
-    game.draw();
-  })
-
   function gameStart() {
     let starting_point = 3;
+    startingCount.innerHTML = starting_point;
     const countdown = setInterval(() => {
       starting_point--;
-      startingCountdown.innerHTML = String(starting_point);
-    }, 1000)
+      startingCount.innerHTML = starting_point;
+      if (starting_point <= 0) {
+        clearInterval(countdown);
+        startingCount.style.visibility = 'hidden';
 
-    setTimeout(() => {
-      clearInterval(countdown);
-      startingCountdown.style.visibility = 'hidden';
-      game.draw();
-      game.countdownTimer();
-      game.update();
-    }, 0)
+        canvas.style.display = "block";
+        timeContainer.style.display = 'flex';
+        game.startTimer();
+
+      }
+    }, 1000)
 
   }
 
