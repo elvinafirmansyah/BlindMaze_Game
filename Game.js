@@ -78,6 +78,7 @@ class Game {
   _boardHeight = 500
   _cellSize = 50;   
   _hearts = 5; 
+  initialPlayer = { x: 0, y: 0 };
   constructor(context, canvas) {    
     this.context = context   
     this.canvas = canvas
@@ -108,7 +109,8 @@ class Game {
     this.isLoseHeart = false;
 
     this.memorizingSeconds = 2;
-    this.moveSeconds = 20;
+    this.moveSeconds = 5;
+    this.movingSeconds = 5;
 
     this.memorizingTimerStarted = false;
 
@@ -162,6 +164,21 @@ class Game {
           moveTime.innerHTML = `${this.moveSeconds}s`;
           if (this.moveSeconds <= 0) {
             clearInterval(moveCountdown)
+            if (this.running) {
+              this.isLoseHeart = true;
+              this.removeHeart();
+              alert(`you hit the wall, your heart is ${this._hearts} left`);
+
+              this.moveSeconds = 5;
+              moveTime.innerHTML = `${this.moveSeconds}s`;
+
+              if (this._hearts <= 0) {
+                this.running = false;
+                this.isOver = true;
+              }
+              this.memorizingTimer();
+            }
+
           } else if (!this.running) {
             clearInterval(moveCountdown)
           }
@@ -206,6 +223,7 @@ class Game {
       this._hearts--;
     }
   }
+  
 
   checkGameover() {
     for (let r = 0; r < this.randomWalls.length; r++) {
@@ -217,13 +235,24 @@ class Game {
               if (!this.isLoseHeart) {
                 this.isLoseHeart = true;
                 this.removeHeart();
+                // console.log(this.resetPlayer);
+
+                this.playerPosition.x = this.initialPlayer.x;
+                this.playerPosition.y = this.initialPlayer.y;
+                this.player.x = this.playerPosition.x;
+                this.player.y = this.playerPosition.y;
+                
+                this.isLoseHeart = false;
+
+                alert(`you hit the wall, your heart is ${this._hearts} left`);
+                this.moveSeconds = 5;
+                moveTime.innerHTML = `${this.moveSeconds}s`;
+
                 if (this._hearts <= 0) {
                   this.running = false;
                   this.isOver = true;
                 }
-                setTimeout(() => {
-                  this.isLoseHeart = false;
-                }, 1000)
+                
               } 
               console.log(this.isLoseHeart);
             }
@@ -251,8 +280,6 @@ class Game {
     // Reset velocities after moving to avoid continuous movement
     this._xVelocity = 0;
     this._yVelocity = 0;
-
-
   }
 
   generatePlayerPosition() {
@@ -272,9 +299,17 @@ class Game {
           // Convert grid coordinates to actual x, y positions
           x = (col * this._cellSize) + this._cellSize / 2;
           y = (row * this._cellSize) + this._cellSize / 2;
+
+          
+
       }
     }
+    
+    this.initialPlayer.x = x;
+    this.initialPlayer.y = y;
 
+    console.log(x, y)
+    // console.log(x, y)
     return { x, y }; // Return the valid position as an object
   }
 
