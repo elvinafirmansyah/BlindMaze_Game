@@ -11,9 +11,7 @@ const memorizingTime = document.getElementById('memorizing-countdown');
 const memorizingContainer = document.querySelector('.memorizing_container')
 const moveContainer = document.querySelector('.move_container');
 
-const heartContainer = document.getElementById('hearts');
-const hearts = document.querySelectorAll('.heart_img');
-const lastHeart = document.querySelector('#hearts .heart_img:last-child');
+const roundText = document.querySelector('.round');
 // console.log(lastHeart)
 // console.log(hearts)
 // console.log(moveTime, memorizingTime)
@@ -108,12 +106,14 @@ class Game {
     this.isWin = false;
     this.isOver = false;
 
+    this.moveCountdownId = null;
+
     this.running = false;
     this.isLoseHeart = false;
     this.isNextStage = false;
 
     this.memorizingSeconds = 2;
-    this.moveSeconds = 20;
+    this.moveSeconds = 10;
 
     this.memorizingTimerStarted = false;
 
@@ -142,6 +142,7 @@ class Game {
           detail: { state: "lobby" },
         })
         document.dispatchEvent(stateEvent);
+
       }, 100);
       }
       
@@ -155,7 +156,6 @@ class Game {
       // Ensure it only starts once
       this.memorizingTimer();
     }
-
   }
   
   memorizingTimer() {
@@ -173,35 +173,48 @@ class Game {
         memorizingContainer.classList.add("none");
         moveContainer.classList.remove("none");
 
-        const moveCountdown = setInterval(() => {
-          this.moveSeconds--;
-          moveTime.innerHTML = `${this.moveSeconds}s`;
-          if (this.moveSeconds <= 0) {
-            clearInterval(moveCountdown)
-            if (this.running) {
-              this.isLoseHeart = true;
-              this.removeHeart();
-              alert(`you run out of time, your heart is ${this._hearts} left`);
-
-              this.moveSeconds = 20;
-              moveTime.innerHTML = `${this.moveSeconds}s`;
-
-              if (this._hearts <= 0) {
-                this.running = false;
-                this.isOver = true;
-                clearInterval(moveCountdown)
-              }
-
-              this.memorizingTimer();
-            }
-
-          } else if (!this.running) {
-            clearInterval(moveCountdown)
-          }
-        }, 1000)
-
+        this.movingCountdown();
       }
       
+    }, 1000)
+  }
+
+  movingCountdown() {
+    if (this.moveCountdownId) {
+      clearInterval(this.moveCountdownId); // Clear any existing interval
+    }
+
+    this.moveCountdownId = setInterval(() => {
+      this.moveSeconds--;
+      moveTime.innerHTML = `${this.moveSeconds}s`;
+      if (this.moveSeconds <= 0) {
+        clearInterval(moveCountdown)
+        if (this.running) {
+          if (!this.isLoseHeart) {
+            this.isLoseHeart = true;
+            this.removeHeart();
+
+            this.playerPosition.x = this.initialPlayer.x;
+            this.playerPosition.y = this.initialPlayer.y;
+            this.player.x = this.playerPosition.x;
+            this.player.y = this.playerPosition.y;
+            
+            this.isLoseHeart = false;
+
+            alert(`you run out of time, your heart is ${this._hearts} left`);
+            this.moveSeconds = 20;
+            moveTime.innerHTML = `${this.moveSeconds}s`;
+            this.movingCountdown();
+
+            if (this._hearts <= 0) {
+              this.running = false;
+              this.isOver = true;
+            }
+          } 
+
+        }
+
+      } 
     }, 1000)
   }
 
@@ -244,6 +257,7 @@ class Game {
     if (this.nextStage) {
       // move to next stage 
       this._stage++;
+      roundText.innerHTML = `Round ${this._stage + 1}`
       // console.log(this._stage);
       this.maze = mazes[this._stage];
 
@@ -276,10 +290,10 @@ class Game {
         if (wall) {
           if (wall.type === "wall") {
             if (wall.x === this.player.x - this._cellSize / 2 && wall.y === this.player.y - this._cellSize / 2) {
+              console.log('i hit')
               if (!this.isLoseHeart) {
                 this.isLoseHeart = true;
                 this.removeHeart();
-
                 this.playerPosition.x = this.initialPlayer.x;
                 this.playerPosition.y = this.initialPlayer.y;
                 this.player.x = this.playerPosition.x;
@@ -287,38 +301,43 @@ class Game {
                 
                 this.isLoseHeart = false;
 
-                alert(`you hit the wall, your heart is ${this._hearts} left`);
+                // alert(`you hit the wall, your heart is ${this._hearts} left`);
+                confirm(`you hit the wall, your heart is ${this._hearts} left`);
                 this.moveSeconds = 20;
                 moveTime.innerHTML = `${this.moveSeconds}s`;
-                this.memorizingTimer();
+
+                this.movingCountdown();
+
                 if (this._hearts <= 0) {
                   this.running = false;
                   this.isOver = true;
                 }
-                
               } 
+
+              console.log(this.isLoseHeart)
+
             }
           }
           if (wall.type === "exitdoor") {
             if (wall.x === this.player.x + 20 && wall.y === this.player.y - this._cellSize/2) {
               if (this._stage > 0 && this._stage !== mazes.length - 1) {
                 this.nextStage = false;
+                this.running = false;
               }
               if (this._stage >= mazes.length - 1) {
                 setTimeout(() => {
                     console.log('anjass')
                     this.running = false;
                     this.isWin = true;
-                  }, 300)
+                  }, 1000)
               }
               setTimeout(() => {
                 this.running = false;
                 if (!this.nextStage) {
                   this.nextStage = true;
                   this.drawNextStage();
-                  
                 }
-              }, 300)
+              }, 1000)
               // this.isWin = true;
             }
           }
