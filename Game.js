@@ -93,6 +93,7 @@ class Game {
   
 
     const randIdx = randMazeIdx(0, mazes.length - 1)
+    this.round = 0;
     this.maze = mazes[randIdx]
 
     this.playerPosition = this.generatePlayerPosition();
@@ -125,6 +126,12 @@ class Game {
     } else {
       if (this.isOver) {
         this.displayGameover();
+        setTimeout(() => {
+          const stateEvent = new CustomEvent('state', {
+            detail: { state: "lobby" },
+          })
+          document.dispatchEvent(stateEvent);
+        }, 100);
       } 
       if (this.isWin) {
         this.displayWin();
@@ -175,7 +182,10 @@ class Game {
               if (this._hearts <= 0) {
                 this.running = false;
                 this.isOver = true;
+                clearInterval(moveCountdown)
+
               }
+
               this.memorizingTimer();
             }
 

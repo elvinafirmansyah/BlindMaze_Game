@@ -15,11 +15,6 @@
   align-items: center;
   flex-direction: column;
 }
-.title {
-  font-size: 30px;
-  display: flex;
-  align-items: center;
-}
 
 .none {
   display: none;

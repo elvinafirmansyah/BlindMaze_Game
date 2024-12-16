@@ -21,7 +21,13 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener("keydown", (e) => game.changeDirection(e));
 
 
-  window.requestAnimationFrame(gameStart);
+  document.addEventListener('state', (e) => {
+    const state = e.detail.state;
+    // console.log(state)
+    if (state === 'playing') {
+      window.requestAnimationFrame(gameStart)
+    } 
+  })
 
   function gameStart() {
     let starting_point = 3;
