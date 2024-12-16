@@ -5,11 +5,12 @@ const instructionButton = document.getElementById('instruction_btn');
 const instructionContainer = document.getElementById('instruction');
 const leaderboardContainer = document.getElementById('leaderboard');
 const closeButton = document.getElementById('close_btn')
+const leaderboardContent = document.getElementById('leaderboard_content');
 
 const leaderboardData = JSON.parse(localStorage.getItem('leaderboard')) || [];
 let currentPlayerData = JSON.parse(localStorage.getItem('player')) || {};
 
-console.log(leaderboardData, currentPlayerData);
+
 
 startBtn.addEventListener("click", (e) => {
   e.preventDefault();
@@ -22,18 +23,8 @@ startBtn.addEventListener("click", (e) => {
 
   leaderboardContainer.classList.add('hidden');
 
-  // const leaderboardObj = {
-  //   "name": name,
-  //   "stage": 1,
-  // }
-  // leaderboardData.push(leaderboardObj);
-
-  // localStorage.setItem('leaderboard', JSON.stringify(leaderboardData));
-
-  // console.log(localStorage.getItem('leaderboard'))
-
   let playerData = {
-    "id": leaderboardData.length,
+    "id": leaderboardData.length + 1,
     "name": name,
   }
 
@@ -54,6 +45,21 @@ startBtn.addEventListener("click", (e) => {
 
 // leaderboardData.splice(0, leaderboardData.length);
 // localStorage.setItem('leaderboard', JSON.stringify(leaderboardData));
+
+displayLeaderboardData();
+
+function displayLeaderboardData() {
+  leaderboardData.forEach((_) => {
+    const newRow = document.createElement('tr');
+    leaderboardContent.appendChild(newRow);
+
+    newRow.innerHTML = `
+      <td class="border border-slate-100 px-5 ">${_.id}</td>
+      <td class="border border-slate-100 px-5 ">${_.name}</td>
+      <td class="border border-slate-100 px-5 ">${_.stage}</td>
+    `
+  })
+}
 
 leaderboardButton.addEventListener("click", (e) => {
   e.preventDefault();

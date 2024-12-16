@@ -14,9 +14,8 @@ const moveContainer = document.querySelector('.move_container');
 const allHearts = document.querySelectorAll('.heart_img');
 
 const roundText = document.querySelector('.round');
-// console.log(lastHeart)
-// console.log(hearts)
-// console.log(moveTime, memorizingTime)
+
+
 let mazes = [
   [
     "111---1111", //1
@@ -301,10 +300,6 @@ class Game {
         if (wall) {
           if (wall.type === "wall") {
             if (wall.x === this.player.x - this._cellSize / 2 && wall.y === this.player.y - this._cellSize / 2) {
-              console.log(mazes[0])
-              console.log(mazes[1])
-              console.log(`x: ${wall.x}, ${this.player.x - this._cellSize / 2}`)
-              console.log(`y: ${wall.y}, ${this.player.y - this._cellSize / 2}`)
               
               if (!this.isLoseHeart) {
                 this.isLoseHeart = true;
@@ -365,7 +360,6 @@ class Game {
     this.player.x = this.playerPosition.x;
     this.player.y = this.playerPosition.y;
 
-    console.log(this.player.x, this.player.y)
     // Reset velocities after moving to avoid continuous movement
     this._xVelocity = 0;
     this._yVelocity = 0;
@@ -396,7 +390,6 @@ class Game {
     this.initialPlayer.x = x;
     this.initialPlayer.y = y;
 
-    console.log(x, y)
     // console.log(x, y)
     return { x, y }; // Return the valid position as an object
   }
@@ -472,19 +465,50 @@ class Game {
 
   displayGameover() {
     if (this.isOver) {
-      this.context.font = "60px Poppins";
-      this.context.fillStyle = "white";
-      this.context.textAlign = "center";
-      this.context.fillText("GAMEOVER", this._boardWidth/2, this._boardHeight/2)
+      const leaderboardData = JSON.parse(localStorage.getItem('leaderboard')) || [];
+      let currentPlayerData = JSON.parse(localStorage.getItem('player'));
+
+      const leaderboardObj = {
+        "id": currentPlayerData.id,
+        "name": currentPlayerData.name,
+        "stage": this._stage + 1, 
+      }
+
+      leaderboardData.push(leaderboardObj);
+
+      localStorage.setItem('leaderboard', JSON.stringify(leaderboardData));
+
+      alert(`
+        gameover,
+        name: ${currentPlayerData.name}
+        stage: ${this._stage + 1}
+      `)
+      window.location.reload();
     }
   }
 
   displayWin() {
     if (this.isWin) {
-      this.context.font = "60px Poppins";
-      this.context.fillStyle = "white";
-      this.context.textAlign = "center";
-      this.context.fillText("WIN", this._boardWidth/2, this._boardHeight/2)
+      const leaderboardData = JSON.parse(localStorage.getItem('leaderboard')) || [];
+      let currentPlayerData = JSON.parse(localStorage.getItem('player'));
+
+      const leaderboardObj = {
+        "id": currentPlayerData.id,
+        "name": currentPlayerData.name,
+        "stage": this._stage + 1, 
+      }
+
+      leaderboardData.push(leaderboardObj);
+
+      localStorage.setItem('leaderboard', JSON.stringify(leaderboardData));
+
+      console.log(leaderboardData);
+      alert(`
+        you won,
+        name: ${currentPlayerData.name}
+        stage: ${this._stage + 1}`
+      )
+      window.location.reload();
     }
   }
   
