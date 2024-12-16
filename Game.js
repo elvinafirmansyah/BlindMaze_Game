@@ -22,7 +22,7 @@ let mazes = [
     "11-------1", //2
     "11111-1111", //3
     "----------", //4
-    "---------E", //5
+    "--11111--E", //5
     "----------", //6
     "------11--", //7
     "-------111", //8
@@ -78,6 +78,8 @@ class Game {
   _cellSize = 50;   
   _hearts = 5; 
   _stage = 0;
+  _movingSec = 20;
+  _memorizingSec = 10;
   initialPlayer = { x: 0, y: 0 };
 
   constructor(context, canvas) {    
@@ -113,8 +115,8 @@ class Game {
     this.isLoseHeart = false;
     this.isNextStage = false;
 
-    this.memorizingSeconds = 2;
-    this.moveSeconds = 10;
+    this.memorizingSeconds = this._memorizingSec;
+    this.moveSeconds = this._movingSec;
 
     this.memorizingTimerStarted = false;
 
@@ -203,7 +205,7 @@ class Game {
             this.isLoseHeart = false;
 
             alert(`you run out of time, your heart is ${this._hearts} left`);
-            this.moveSeconds = 20;
+            this.moveSeconds = this._movingSec;
             moveTime.innerHTML = `${this.moveSeconds}s`;
             this.movingCountdown();
 
@@ -278,9 +280,9 @@ class Game {
 
       // reset memorizingTimerStarted
       this.memorizingTimerStarted = false;
-      this.memorizingSeconds = 2; 
+      this.memorizingSeconds = this._memorizingSec; 
       memorizingTime.innerHTML = `${this.memorizingSeconds}s`
-      this.moveSeconds = 20;
+      this.moveSeconds = this._movingSec;
       moveTime.innerHTML = `${this.moveSeconds}s`;
 
       this.playerPosition = this.generatePlayerPosition();
@@ -311,7 +313,7 @@ class Game {
                 // alert(`you hit the wall, your heart is ${this._hearts} left`);
                 const alert = confirm(`you hit the wall, your heart is ${this._hearts} left`);
                 if (alert) {
-                  this.moveSeconds = 20;
+                  this.moveSeconds = this._movingSec;
                   moveTime.innerHTML = `${this.moveSeconds}s`;
                 }
                 
@@ -445,7 +447,7 @@ class Game {
       for (let c = 0; c < this._columns; c++) {
         if (this.maze[r][c] !== "-" && this.maze[r][c] !== "E") {
           if (this.running) {
-            const transparantWall = new Walls(this.context, c * this._cellSize, r * this._cellSize, this._cellSize, this._cellSize, "wall", "rgba(226, 255, 145, 0.8)");
+            const transparantWall = new Walls(this.context, c * this._cellSize, r * this._cellSize, this._cellSize, this._cellSize, "wall", "rgba(255, 255, 255, 0)");
             this.randomWalls[r][c] = transparantWall;
             transparantWall.draw();
           } else {
