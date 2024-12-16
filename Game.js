@@ -78,7 +78,9 @@ class Game {
   _boardHeight = 500
   _cellSize = 50;   
   _hearts = 5; 
+  _stage = 0;
   initialPlayer = { x: 0, y: 0 };
+
   constructor(context, canvas) {    
     this.context = context   
     this.canvas = canvas
@@ -92,9 +94,9 @@ class Game {
     this.randomWalls = Array.from({length: this._rows}, () => [])
   
 
-    const randIdx = randMazeIdx(0, mazes.length - 1)
-    this.round = 0;
-    this.maze = mazes[randIdx]
+    this.randIdx = randMazeIdx(0, mazes.length - 1)
+    
+    this.maze = mazes[this._stage];
 
     this.playerPosition = this.generatePlayerPosition();
 
@@ -108,10 +110,10 @@ class Game {
 
     this.running = false;
     this.isLoseHeart = false;
+    this.isNextStage = false;
 
     this.memorizingSeconds = 2;
-    this.moveSeconds = 5;
-    this.movingSeconds = 5;
+    this.moveSeconds = 20;
 
     this.memorizingTimerStarted = false;
 
@@ -135,7 +137,14 @@ class Game {
       } 
       if (this.isWin) {
         this.displayWin();
+        setTimeout(() => {
+        const stateEvent = new CustomEvent('state', {
+          detail: { state: "lobby" },
+        })
+        document.dispatchEvent(stateEvent);
+      }, 100);
       }
+      
     }
   }
 
@@ -146,19 +155,17 @@ class Game {
       // Ensure it only starts once
       this.memorizingTimer();
     }
+
   }
   
   memorizingTimer() {
     const countdownDisplay = setInterval(() => {
       this.running = false;
-      this.nextTick();
       this.memorizingSeconds--;
       memorizingTime.innerHTML = `${this.memorizingSeconds}s`
 
-
       if (this.memorizingSeconds <= 0) {
-        clearInterval(countdownDisplay);
-
+        clearInterval(countdownDisplay);  
         this.running = true;
         this.draw();
         this.nextTick();
@@ -174,16 +181,15 @@ class Game {
             if (this.running) {
               this.isLoseHeart = true;
               this.removeHeart();
-              alert(`you hit the wall, your heart is ${this._hearts} left`);
+              alert(`you run out of time, your heart is ${this._hearts} left`);
 
-              this.moveSeconds = 5;
+              this.moveSeconds = 20;
               moveTime.innerHTML = `${this.moveSeconds}s`;
 
               if (this._hearts <= 0) {
                 this.running = false;
                 this.isOver = true;
                 clearInterval(moveCountdown)
-
               }
 
               this.memorizingTimer();
@@ -233,6 +239,34 @@ class Game {
       this._hearts--;
     }
   }
+
+  drawNextStage() {
+    if (this.nextStage) {
+      // move to next stage 
+      this._stage++;
+      // console.log(this._stage);
+      this.maze = mazes[this._stage];
+
+      // remove moveContainer and add memorizingCon
+      memorizingContainer.classList.remove("none");
+      moveContainer.classList.add("none");
+
+      // reset memorizingTimerStarted
+      this.memorizingTimerStarted = false;
+      this.memorizingSeconds = 2; 
+      memorizingTime.innerHTML = `${this.memorizingSeconds}s`
+      this.moveSeconds = 20;
+      moveTime.innerHTML = `${this.moveSeconds}s`;
+
+      this.playerPosition = this.generatePlayerPosition();
+      this.player.x = this.playerPosition.x;
+      this.player.y = this.playerPosition.y;
+
+      console.log(this.playerPosition, this.maze);
+
+      this.startTimer();
+    }
+  }
   
 
   checkGameover() {
@@ -245,7 +279,6 @@ class Game {
               if (!this.isLoseHeart) {
                 this.isLoseHeart = true;
                 this.removeHeart();
-                // console.log(this.resetPlayer);
 
                 this.playerPosition.x = this.initialPlayer.x;
                 this.playerPosition.y = this.initialPlayer.y;
@@ -255,24 +288,38 @@ class Game {
                 this.isLoseHeart = false;
 
                 alert(`you hit the wall, your heart is ${this._hearts} left`);
-                this.moveSeconds = 5;
+                this.moveSeconds = 20;
                 moveTime.innerHTML = `${this.moveSeconds}s`;
-
+                this.memorizingTimer();
                 if (this._hearts <= 0) {
                   this.running = false;
                   this.isOver = true;
                 }
                 
               } 
-              console.log(this.isLoseHeart);
             }
           }
           if (wall.type === "exitdoor") {
             if (wall.x === this.player.x + 20 && wall.y === this.player.y - this._cellSize/2) {
+              if (this._stage > 0 && this._stage !== mazes.length - 1) {
+                this.nextStage = false;
+              }
+              if (this._stage >= mazes.length - 1) {
+                setTimeout(() => {
+                    console.log('anjass')
+                    this.running = false;
+                    this.isWin = true;
+                  }, 300)
+              }
               setTimeout(() => {
                 this.running = false;
+                if (!this.nextStage) {
+                  this.nextStage = true;
+                  this.drawNextStage();
+                  
+                }
               }, 300)
-              this.isWin = true;
+              // this.isWin = true;
             }
           }
         }
@@ -378,7 +425,7 @@ class Game {
       for (let c = 0; c < this._columns; c++) {
         if (this.maze[r][c] !== "-" && this.maze[r][c] !== "E") {
           if (this.running) {
-            const transparantWall = new Walls(this.context, c * this._cellSize, r * this._cellSize, this._cellSize, this._cellSize, "wall", "rgba(255, 255, 255, 0.0)");
+            const transparantWall = new Walls(this.context, c * this._cellSize, r * this._cellSize, this._cellSize, this._cellSize, "wall", "rgba(226, 255, 145, 0.8)");
             this.randomWalls[r][c] = transparantWall;
             transparantWall.draw();
           } else {
@@ -386,7 +433,6 @@ class Game {
             this.randomWalls[r][c] = wall;
             wall.draw();
           }
-          
         }
         if (this.maze[r][c] === "E") {
           const exitDoor = new ExitDoor(this.context, c * this._cellSize + this._cellSize - 5, r * this._cellSize, 5, this._cellSize, "exitdoor");
