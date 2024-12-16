@@ -375,7 +375,7 @@ class Game {
     while (!validPosition) {
       // Generate random grid coordinates (row and column)
       const row = randMazeIdx(0, this._rows - 1);
-      const col = randMazeIdx(0, this._columns - 1);
+      const col = randMazeIdx(0, this._columns/2 - 1);
 
       // Check if the maze at this position is empty (no wall)
       if (this.maze[row][col] === "-" && this.maze[row][col] !== "E") {
