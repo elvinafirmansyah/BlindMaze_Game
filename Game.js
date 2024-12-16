@@ -11,6 +11,8 @@ const memorizingTime = document.getElementById('memorizing-countdown');
 const memorizingContainer = document.querySelector('.memorizing_container')
 const moveContainer = document.querySelector('.move_container');
 
+const allHearts = document.querySelectorAll('.heart_img');
+
 const roundText = document.querySelector('.round');
 // console.log(lastHeart)
 // console.log(hearts)
@@ -26,7 +28,7 @@ let mazes = [
     "------11--", //7
     "-------111", //8
     "111111----", //9
-    "111111111-", //10
+    "1111111111", //10
   ],
   [
     "111---1111", //1
@@ -188,7 +190,7 @@ class Game {
       this.moveSeconds--;
       moveTime.innerHTML = `${this.moveSeconds}s`;
       if (this.moveSeconds <= 0) {
-        clearInterval(moveCountdown)
+        clearInterval(this.moveCountdownId);
         if (this.running) {
           if (!this.isLoseHeart) {
             this.isLoseHeart = true;
@@ -245,12 +247,17 @@ class Game {
   }
 
   removeHeart() {
-    const lastHeart = document.querySelector('#hearts .heart_img:last-child');
-    console.log(lastHeart)
-    if (lastHeart) {
-      lastHeart.remove();
-      this._hearts--;
+    this._hearts--;
+    if (allHearts[this._hearts]) {
+      allHearts[this._hearts].style.filter = 'brightness(50%)';
     }
+  }
+
+  spawnFullHearts() {
+    this._hearts = 5;
+    allHearts.forEach((heart) => {
+      heart.style.filter = 'brightness(100%)';
+    })
   }
 
   drawNextStage() {
@@ -260,6 +267,11 @@ class Game {
       roundText.innerHTML = `Round ${this._stage + 1}`
       // console.log(this._stage);
       this.maze = mazes[this._stage];
+
+      this.randomWalls = Array.from({ length: this._rows }, () => []);
+
+      // spawn full hearts back
+      this.spawnFullHearts();
 
       // remove moveContainer and add memorizingCon
       memorizingContainer.classList.remove("none");
@@ -281,7 +293,6 @@ class Game {
       this.startTimer();
     }
   }
-  
 
   checkGameover() {
     for (let r = 0; r < this.randomWalls.length; r++) {
@@ -290,7 +301,11 @@ class Game {
         if (wall) {
           if (wall.type === "wall") {
             if (wall.x === this.player.x - this._cellSize / 2 && wall.y === this.player.y - this._cellSize / 2) {
-              console.log('i hit')
+              console.log(mazes[0])
+              console.log(mazes[1])
+              console.log(`x: ${wall.x}, ${this.player.x - this._cellSize / 2}`)
+              console.log(`y: ${wall.y}, ${this.player.y - this._cellSize / 2}`)
+              
               if (!this.isLoseHeart) {
                 this.isLoseHeart = true;
                 this.removeHeart();
@@ -298,31 +313,29 @@ class Game {
                 this.playerPosition.y = this.initialPlayer.y;
                 this.player.x = this.playerPosition.x;
                 this.player.y = this.playerPosition.y;
+                // alert(`you hit the wall, your heart is ${this._hearts} left`);
+                const alert = confirm(`you hit the wall, your heart is ${this._hearts} left`);
+                if (alert) {
+                  this.moveSeconds = 20;
+                  moveTime.innerHTML = `${this.moveSeconds}s`;
+                }
+                
+                this.movingCountdown();
                 
                 this.isLoseHeart = false;
-
-                // alert(`you hit the wall, your heart is ${this._hearts} left`);
-                confirm(`you hit the wall, your heart is ${this._hearts} left`);
-                this.moveSeconds = 20;
-                moveTime.innerHTML = `${this.moveSeconds}s`;
-
-                this.movingCountdown();
-
+                
                 if (this._hearts <= 0) {
                   this.running = false;
                   this.isOver = true;
                 }
               } 
-
-              console.log(this.isLoseHeart)
-
             }
           }
           if (wall.type === "exitdoor") {
             if (wall.x === this.player.x + 20 && wall.y === this.player.y - this._cellSize/2) {
+              console.log(wall.x, this.player.x + 20)
               if (this._stage > 0 && this._stage !== mazes.length - 1) {
                 this.nextStage = false;
-                this.running = false;
               }
               if (this._stage >= mazes.length - 1) {
                 setTimeout(() => {
@@ -337,8 +350,7 @@ class Game {
                   this.nextStage = true;
                   this.drawNextStage();
                 }
-              }, 1000)
-              // this.isWin = true;
+              }, 1000)  
             }
           }
         }
@@ -353,6 +365,7 @@ class Game {
     this.player.x = this.playerPosition.x;
     this.player.y = this.playerPosition.y;
 
+    console.log(this.player.x, this.player.y)
     // Reset velocities after moving to avoid continuous movement
     this._xVelocity = 0;
     this._yVelocity = 0;
@@ -374,9 +387,8 @@ class Game {
 
           // Convert grid coordinates to actual x, y positions
           x = (col * this._cellSize) + this._cellSize / 2;
+          // 1 * 50 + 25
           y = (row * this._cellSize) + this._cellSize / 2;
-
-          
 
       }
     }
@@ -400,7 +412,6 @@ class Game {
     
       switch(true) {
         case (keyPressed == LEFT):
-          console.log('left');
           this._xVelocity = -this._cellSize
           this._yVelocity = 0;
           if (this.player.x === 0 + this._cellSize/2) {
@@ -408,7 +419,6 @@ class Game {
           } 
           break;
         case (keyPressed == RIGHT):
-          console.log('right');
           this._xVelocity = this._cellSize
           this._yVelocity = 0
           if (this.player.x === this._boardWidth - this._cellSize/2) {
@@ -416,7 +426,6 @@ class Game {
           } 
           break;
         case (keyPressed == UP):
-          console.log('up');
           this._xVelocity = 0
           this._yVelocity = -this._cellSize
           if (this.player.y === 0 + this._cellSize/2) {
@@ -424,7 +433,6 @@ class Game {
           } 
           break;
         case (keyPressed == DOWN):
-          console.log('down');
           this._xVelocity = 0
           this._yVelocity = this._cellSize
           if (this.player.y === this._boardHeight - this._cellSize /2) {
