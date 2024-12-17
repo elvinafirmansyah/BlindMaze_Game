@@ -478,7 +478,10 @@ class Game {
 
       leaderboardData.push(leaderboardObj);
 
-      localStorage.setItem('leaderboard', JSON.stringify(leaderboardData));
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('leaderboard', JSON.stringify(leaderboardData));
+      }
+
 
       alert(`
         gameover,
@@ -502,7 +505,10 @@ class Game {
 
       leaderboardData.push(leaderboardObj);
 
-      localStorage.setItem('leaderboard', JSON.stringify(leaderboardData));
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('leaderboard', JSON.stringify(leaderboardData));
+      }
+
 
       console.log(leaderboardData);
       alert(`

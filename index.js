@@ -6,7 +6,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('state', (event) => {
     const state = event.detail.state;
 
-    localStorage.setItem('state', state);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('state', state);
+    }
 
     gameContainer.classList.add('hidden');
     lobbyContainer.classList.add('hidden');
