@@ -48,7 +48,6 @@ function displayLeaderboardData() {
   const top5 = leaderboardData.sort((a, b) => b.stage - a.stage).slice(0, 5);
   localStorage.setItem('leaderboard', JSON.stringify(top5));
 
-  console.log(leaderboardData)
   top5.forEach((_, index) => {
     const newRow = document.createElement('tr');
     leaderboardContent.appendChild(newRow);

@@ -1,0 +1,35 @@
+# Query: console.log
+# ContextLines: 1
+
+11 results - 2 files
+
+Game.js:
+   19  function generateMazeIdx (min, max, data) {
+   21  }
+
+  133        this.draw();
+  135        this.mazeData.push(this.randIdx)
+  137        this.memorizingTimerStarted = true; 
+
+  240        roundText.innerHTML = `Round ${this._stage + 1}`
+  241:       // console.log(this._stage);
+  242        this.randIdx = this.generateMazeIdx(0, mazes.length - 1, this.mazeData);
+
+  261  
+  263  
+
+  302              if (wall.x === this.player.x + 20 && wall.y === this.player.y - this._cellSize/2) {
+  305                if (this._stage > 0 && this._stage !== this.totalStage - 1) {
+  306                  this.nextStage = false;
+  307:                 console.log('ayo', this.nextStage)
+  308                }
+
+  365  
+
+  483  
+  485        alert(`
+
+Start.js:
+  29    //   const state = e.detail.state;
+  30:   //   // console.log(state)
+  31    //   if (state === 'playing') {

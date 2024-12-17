@@ -15,19 +15,11 @@ const allHearts = document.querySelectorAll('.heart_img');
 
 const roundText = document.querySelector('.round');
 
-
-function generateMazeIdx (min, max, data) {
-  console.log(data);
-}
-
 function randMazeIdx(min, max) {
   const randIdx = Math.round((Math.random() * (max - min) + min))
   return randIdx;
 }
 
-function isOdd(num) {
-  return num % 2 !== 0;
-}
 
 class Game {
   _columns = 10
@@ -131,9 +123,7 @@ class Game {
   startTimer() {
     if (!this.memorizingTimerStarted) {
       this.draw();
-      console.log(this.randIdx)
       this.mazeData.push(this.randIdx)
-      console.log(this.mazeData)
       this.memorizingTimerStarted = true; 
       // Ensure it only starts once
       this.memorizingTimer();
@@ -238,7 +228,8 @@ class Game {
       // move to next stage 
       this._stage++;
       roundText.innerHTML = `Round ${this._stage + 1}`
-      // console.log(this._stage);
+
+      // generate new maze
       this.randIdx = this.generateMazeIdx(0, mazes.length - 1, this.mazeData);
       this.maze = mazes[this.randIdx];
 
@@ -258,8 +249,6 @@ class Game {
       this.playerPosition = this.generatePlayerPosition();
       this.player.x = this.playerPosition.x;
       this.player.y = this.playerPosition.y;
-
-      console.log(this.playerPosition, this.maze);
 
       this.startTimer();
     }
@@ -300,11 +289,8 @@ class Game {
           }
           if (wall.type === "exitdoor") {
             if (wall.x === this.player.x + 20 && wall.y === this.player.y - this._cellSize/2) {
-              console.log(wall.x, this.player.x + 20)
-              console.log(this._stage)
               if (this._stage > 0 && this._stage !== this.totalStage - 1) {
                 this.nextStage = false;
-                console.log('ayo', this.nextStage)
               }
               if (this._stage === this.totalStage - 1) {
                 setTimeout(() => {
@@ -363,7 +349,6 @@ class Game {
     this.initialPlayer.x = x;
     this.initialPlayer.y = y;
 
-    // console.log(x, y)
     return { x, y }; // Return the valid position as an object
   }
 
@@ -481,7 +466,6 @@ class Game {
       }
 
 
-      console.log(leaderboardData);
       alert(`
         you won,
         name: ${currentPlayerData.name}
