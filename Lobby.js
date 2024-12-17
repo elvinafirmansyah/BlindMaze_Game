@@ -11,6 +11,7 @@ const leaderboardContent = document.getElementById('leaderboard_content');
 const leaderboardData = JSON.parse(localStorage.getItem('leaderboard')) || [];
 let currentPlayerData = JSON.parse(localStorage.getItem('player')) || {};
 
+localStorage.removeItem('iconify10');
 // leaderboardData.splice(0, leaderboardData.length);
 // localStorage.setItem('leaderboard', JSON.stringify(leaderboardData));
 
@@ -41,20 +42,25 @@ startBtn.addEventListener("click", (e) => {
 })
 
 
-
 displayLeaderboardData();
 
 function displayLeaderboardData() {
-  leaderboardData.forEach((_) => {
+  const top5 = leaderboardData.sort((a, b) => b.stage - a.stage).slice(0, 5);
+  localStorage.setItem('leaderboard', JSON.stringify(top5));
+
+  console.log(leaderboardData)
+  top5.forEach((_, index) => {
     const newRow = document.createElement('tr');
     leaderboardContent.appendChild(newRow);
 
     newRow.innerHTML = `
-      <td class="border border-slate-100 px-5 ">${_.id}</td>
+      <td class="border border-slate-100 px-5 ">${index + 1}</td>
       <td class="border border-slate-100 px-5 ">${_.name}</td>
       <td class="border border-slate-100 px-5 ">${_.stage}</td>
     `
   })
+
+  
 }
 
 leaderboardButton.addEventListener("click", (e) => {
