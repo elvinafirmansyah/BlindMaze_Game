@@ -15,7 +15,6 @@ const allHearts = document.querySelectorAll('.heart_img');
 
 const roundText = document.querySelector('.round');
 
-
 let mazes = [
   [
     "111---1111", //1
@@ -23,23 +22,23 @@ let mazes = [
     "11111-1111", //3
     "----------", //4
     "--11111--E", //5
-    "----------", //6
-    "------11--", //7
+    "------1111", //6
+    "---11111--", //7
     "-------111", //8
     "111111----", //9
     "1111111111", //10
   ],
   [
     "111---1111", //1
-    "11-----111", //2
-    "11111-1111", //3
-    "----------", //4
-    "1111111---", //5
+    "11--------", //2
+    "----111111", //3
+    "-----1----", //4
+    "1--1111---", //5
     "----------", //6
-    "-11111111-", //7
+    "--1111111-", //7
     "-------111", //8
     "--111-----", //9
-    "-----1111E", //10
+    "-----11--E", //10
   ],
   [
     "111---1111", //1
@@ -53,12 +52,155 @@ let mazes = [
     "--111-----", //9
     "-----1111-", //10
   ],
+  [
+    "------1111", //1
+    "11-1111--E", //2
+    "1---11----", //3
+    "1------1--", //4
+    "----1--111", //5
+    "------111-", //6
+    "-111111---", //7
+    "-----11---", //8
+    "--11-----1", //9
+    "----11111-", //10
+  ],
+  [
+    "111---1111", //1
+    "11---1----", //2
+    "11----1--E", //3
+    "1----1----", //4
+    "----11111-", //5
+    "----------", //6
+    "-111111---", //7
+    "--------11", //8
+    "--111-----", //9
+    "1111--1111", //10
+  ],
+  [
+    "1111111111", //1
+    "1-------11", //2
+    "1--111----", //3
+    "1----111--", //4
+    "-11-----11", //5
+    "-------111", //6
+    "--111-----", //7
+    "----111---", //8
+    "----1----E", //9
+    "1111111111", //10
+  ],
+  [
+    "111---1111", //1
+    "11-------1", //2
+    "-1--111111", //3
+    "-1--------", //4
+    "-1111---11", //5
+    "-------1--", //6
+    "---1111---", //7
+    "--------1E", //8
+    "----111111", //9
+    "1111111111", //10
+  ],
+  [
+    "111---1111", //1
+    "1--------1", //2
+    "1-1111111-", //3
+    "1----1----", //4
+    "1--1111---", //5
+    "1-------11", //6
+    "--1111----", //7
+    "----111--E", //8
+    "111-----11", //9
+    "1111111111", //10
+  ],
+  [
+    "1111111111", //1
+    "1----111--", //2
+    "1-------11", //3
+    "1----111--", //4
+    "1111----1-", //5
+    "-----11---", //6
+    "111----111", //7
+    "--------1E", //8
+    "1111111---", //9
+    "1111111111", //10
+  ],
+  [
+    "1---111111", //1
+    "1---1-----", //2
+    "1---1-1111", //3
+    "1-------1-", //4
+    "1----1111-", //5
+    "1--------1", //6
+    "-1111-----", //7
+    "------111-", //8
+    "--11111--E", //9
+    "1111111111", //10
+  ],
+  [
+    "1111111111", //1
+    "1--------1", //2
+    "1---------", //3
+    "1-----1---", //4
+    "1--11-1---", //5
+    "--11-----1", //6
+    "----111111", //7
+    "--1-------", //8
+    "--1--111-E", //9
+    "-----11111", //10
+  ],
+  [
+    "1---111111", //1
+    "1-------11", //2
+    "1---111---", //3
+    "1---1----E", //4
+    "-1--1--111", //5
+    "--------11", //6
+    "---111---1", //7
+    "----111--1", //8
+    "----------", //9
+    "1111111111", //10
+  ],
+  [
+    "1111111---", //1
+    "1-----1---", //2
+    "1--111----", //3
+    "1------111", //4
+    "--111----1", //5
+    "----1----E", //6
+    "------1111", //7
+    "--1111----", //8
+    "-------1--", //9
+    "1111111111", //10
+  ],
+  [
+    "1111111111", //1
+    "111------E", //2
+    "1---111111", //3
+    "1---------", //4
+    "---11-----", //5
+    "----111---", //6
+    "--1111----", //7
+    "1-11111--1", //8
+    "1111111---", //9
+    "1111111111", //10
+  ],
+  [
+    "111---1111", //1
+    "1------111", //2
+    "1---111---", //3
+    "1--------1", //4
+    "-11111----", //5
+    "---------1", //6
+    "--111111-E", //7
+    "---1111---", //8
+    "--1111----", //9
+    "1111111111", //10
+  ],
 ]
 
 
-function randNumber(min, max, cellSize) {
-  const randNum = Math.round((Math.random() * (max - min) + min) / cellSize) * cellSize
-  return randNum;
+function generateMazeIdx (min, max, data) {
+  console.log(data);
 }
 
 function randMazeIdx(min, max) {
@@ -81,7 +223,7 @@ class Game {
   _movingSec = 20;
   _memorizingSec = 10;
   initialPlayer = { x: 0, y: 0 };
-
+  mazeData = [];
   constructor(context, canvas) {    
     this.context = context   
     this.canvas = canvas
@@ -94,10 +236,14 @@ class Game {
 
     this.randomWalls = Array.from({length: this._rows}, () => [])
   
-
-    this.randIdx = randMazeIdx(0, mazes.length - 1)
+    this.randIdx = this.generateMazeIdx(0, mazes.length - 1, this.mazeData);
     
-    this.maze = mazes[this._stage];
+    // this.randIdx = randMazeIdx(0, mazes.length - 1)
+    
+    // this.maze = mazes[this._stage];
+    this.maze = mazes[this.randIdx];
+
+    this.totalStage = 5;
 
     this.playerPosition = this.generatePlayerPosition();
 
@@ -123,6 +269,30 @@ class Game {
     this.text = new Player(this.context, this._boardWidth/2, this._boardHeight/2, 100, 100);
   }
 
+  generateMazeIdx(min, max, data) {
+    let validNumber = false;
+    let validIdx;
+    const randIdx = Math.round((Math.random() * (max - min) + min))
+
+
+    if (data.length <= 0) {
+      validNumber = true;
+      if (validNumber) {
+        validIdx = randIdx;
+      }
+    } 
+
+    while (!validNumber) {
+      if (!data.includes(randIdx)) {
+        validNumber = true;
+        if (validNumber) {
+          validIdx = randIdx;
+        }
+      }
+    }
+    return validIdx;
+  }
+
   nextTick() {
     if (this.running) {
       this.draw();
@@ -144,6 +314,9 @@ class Game {
   startTimer() {
     if (!this.memorizingTimerStarted) {
       this.draw();
+      console.log(this.randIdx)
+      this.mazeData.push(this.randIdx)
+      console.log(this.mazeData)
       this.memorizingTimerStarted = true; 
       // Ensure it only starts once
       this.memorizingTimer();
@@ -256,7 +429,8 @@ class Game {
       this._stage++;
       roundText.innerHTML = `Round ${this._stage + 1}`
       // console.log(this._stage);
-      this.maze = mazes[this._stage];
+      this.randIdx = this.generateMazeIdx(0, mazes.length - 1, this.mazeData);
+      this.maze = mazes[this.randIdx];
 
       this.randomWalls = Array.from({ length: this._rows }, () => []);
 
@@ -320,10 +494,11 @@ class Game {
           if (wall.type === "exitdoor") {
             if (wall.x === this.player.x + 20 && wall.y === this.player.y - this._cellSize/2) {
               console.log(wall.x, this.player.x + 20)
-              if (this._stage > 0 && this._stage !== mazes.length - 1) {
+              console.log(this._stage)
+              if (this._stage > 0 && this._stage !== this.totalStage - 1) {
                 this.nextStage = false;
               }
-              if (this._stage >= mazes.length - 1) {
+              if (this._stage === this.totalStage - 1) {
                 setTimeout(() => {
                     console.log('anjass')
                     this.running = false;

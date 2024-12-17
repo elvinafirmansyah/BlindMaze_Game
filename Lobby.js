@@ -11,7 +11,8 @@ const leaderboardContent = document.getElementById('leaderboard_content');
 const leaderboardData = JSON.parse(localStorage.getItem('leaderboard')) || [];
 let currentPlayerData = JSON.parse(localStorage.getItem('player')) || {};
 
-
+// leaderboardData.splice(0, leaderboardData.length);
+// localStorage.setItem('leaderboard', JSON.stringify(leaderboardData));
 
 startBtn.addEventListener("click", (e) => {
   e.preventDefault();
@@ -39,8 +40,7 @@ startBtn.addEventListener("click", (e) => {
 
 })
 
-// leaderboardData.splice(0, leaderboardData.length);
-// localStorage.setItem('leaderboard', JSON.stringify(leaderboardData));
+
 
 displayLeaderboardData();
 
