@@ -1,3 +1,4 @@
+import { showGame }from './Start.js';
 const inputName = document.getElementById('inputName');
 const startBtn = document.getElementById('startBtn');
 const leaderboardButton = document.getElementById('leaderboard_btn');
@@ -30,16 +31,11 @@ startBtn.addEventListener("click", (e) => {
 
   currentPlayerData = playerData;
 
-  localStorage.setItem('player', JSON.stringify(currentPlayerData));
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('player', JSON.stringify(currentPlayerData));
+  }
 
-  console.log(localStorage.getItem('player'))
-
-  setTimeout(() => {
-    const stateEvent = new CustomEvent('state', {
-      detail: { state: "playing" },
-    })
-    document.dispatchEvent(stateEvent);
-  }, 100)
+  showGame();
 
 })
 

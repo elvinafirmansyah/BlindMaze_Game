@@ -1,13 +1,18 @@
 import Game from "./Game.js";
 
-const startingCount = document.getElementById
-('starting-countdown');
+const lobbyContainer = document.querySelector('.lobby_container');
+const gameContainer = document.querySelector('.game_container');
 
-const timeContainer = document.querySelector('.time');
+function showGame() {
+  lobbyContainer.classList.add('hidden');
+  gameContainer.classList.remove('hidden');
 
-document.addEventListener('DOMContentLoaded', () => {
   const canvas = document.getElementById('gameboard');
   const context = canvas.getContext('2d');
+
+  const startingCount = document.getElementById('starting-countdown');
+
+  const timeContainer = document.querySelector('.time');
 
   canvas.width = 500;
   canvas.height = 500;
@@ -20,14 +25,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const game = new Game(context, canvas);
   window.addEventListener("keydown", (e) => game.changeDirection(e));
 
+  // document.addEventListener('state', (e) => {
+  //   const state = e.detail.state;
+  //   // console.log(state)
+  //   if (state === 'playing') {
+  //   } 
+  //   window.requestAnimationFrame(gameStart)
+  // })
 
-  document.addEventListener('state', (e) => {
-    const state = e.detail.state;
-    // console.log(state)
-    if (state === 'playing') {
-      window.requestAnimationFrame(gameStart)
-    } 
-  })
+  window.requestAnimationFrame(gameStart)
 
   function gameStart() {
     let starting_point = 3;
@@ -46,5 +52,12 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }, 1000)
   }
-})
+}
+
+function hideGame() {
+  lobbyContainer.classList.remove('hidden');
+  gameContainer.classList.add('hidden');
+}
+
+export { showGame, hideGame };
 

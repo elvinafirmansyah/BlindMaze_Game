@@ -1,5 +1,5 @@
+import { hideGame } from "./Start.js";
 import ExitDoor from "./initialComponents/ExitDoor.js";
-// import Horizontal from "./initialComponents/horizontal.js"
 import Horizontal from "./initialComponents/Horizontal.js";
 import Vertical from "./initialComponents/Vertical.js"
 import Walls from "./initialComponents/Walls.js"
@@ -131,22 +131,11 @@ class Game {
     } else {
       if (this.isOver) {
         this.displayGameover();
-        setTimeout(() => {
-          const stateEvent = new CustomEvent('state', {
-            detail: { state: "lobby" },
-          })
-          document.dispatchEvent(stateEvent);
-        }, 100);
+        hideGame();
       } 
       if (this.isWin) {
         this.displayWin();
-        setTimeout(() => {
-        const stateEvent = new CustomEvent('state', {
-          detail: { state: "lobby" },
-        })
-        document.dispatchEvent(stateEvent);
-
-      }, 100);
+        hideGame();
       }
       
     }
